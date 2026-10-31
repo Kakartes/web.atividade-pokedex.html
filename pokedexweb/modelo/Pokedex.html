@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex</title>
+    <link rel="stylesheet" href="css/estilos.css">
+</head>
+
+<body>
+    <header class="topo">Pokédex</header>
+
+    <main class="container">
+        <section class="filtro">
+            <div class="linha">
+                <input id="campoNome" type="text" placeholder="Digite o nome do Pokémon">
+
+                <select id="campoTipo">
+                    <option value="">Todos</option>
+                </select>
+
+                <button id="btnBuscar" type="button">Buscar</button>
+            </div>
+
+            <button id="btnLimpar" type="button" class="btn-limpar">Limpar filtros</button>
+        </section>
+
+        <section id="detalhes" class="painel"></section>
+
+        <div id="mensagem" class="sem-resultado" style="display:none;">
+            Nenhum Pokémon encontrado com esses filtros.
+        </div>
+
+        <section id="listaPokemon" class="lista"></section>
+    </main>
+
+    <script>
+        const pokedex = [
+            {
+                nome: 'Eevee',
+                tipo: 'Normal',
+                geracao: 'I',
+                descricao: 'Pokémon muito versátil, capaz de evoluir de formas diferentes.',
+                imagem: 'imagens.modelos/eevee.jpg'
+            },
+            {
+                nome: 'Bulbassauro',
+                tipo: 'Planta',
+                geracao: 'I',
+                descricao: 'Pokémon planta que usa folhas para capturar energia do sol.',
+                imagem: 'imagens.modelos/buba.png'
+            },
+            {
+                nome: 'Charmander',
+                tipo: 'Fogo',
+                geracao: 'I',
+                descricao: 'Pokémon fogo com cauda em chamas e muito espírito.',
+                imagem: 'imagens.modelos/char.jpe'
+            },
+            {
+                nome: 'Squirtle',
+                tipo: 'Água',
+                geracao: 'I',
+                descricao: 'Pokémon água que usa sua concha para se proteger.',
+                imagem: 'imagens.modelos/squirtle.jpg'
+            },
+            {
+                nome: 'Pikachu',
+                tipo: 'Elétrico',
+                geracao: 'I',
+                descricao: 'Pokémon elétrico muito famoso e cheio de energia.',
+                imagem: 'imagens.modelos/pikachu.png'
+            },
+            {
+                nome: 'Gengar',
+                tipo: 'Fantasma',
+                geracao: 'I',
+                descricao: 'Pokémon sombrio que gosta de assustar e brincar.',
+                imagem: 'imagens.modelos/gangar.webp'
+            }
+        ];
+
+        const campoNome = document.getElementById('campoNome');
+        const campoTipo = document.getElementById('campoTipo');
+        const btnBuscar = document.getElementById('btnBuscar');
+        const btnLimpar = document.getElementById('btnLimpar');
+        const detalhes = document.getElementById('detalhes');
+        const listaPokemon = document.getElementById('listaPokemon');
+        const mensagem = document.getElementById('mensagem');
+
+        function listarTipos() {
+            const tipos = [...new Set(pokedex.map(p => p.tipo))].sort();
+
+            tipos.forEach(tipo => {
+                const option = document.createElement('option');
+                option.value = tipo;
+                option.textContent = tipo;
+                campoTipo.appendChild(option);
+            });
+        }
+
+        function filtrarPokemons() {
+            const nome = campoNome.value.trim().toLowerCase();
+            const tipo = campoTipo.value;
+
+            return pokedex.filter(pokemon => {
+                const nomeValido = !nome || pokemon.nome.toLowerCase().includes(nome);
+                const tipoValido = !tipo || pokemon.tipo === tipo;
+                return nomeValido && tipoValido;
+            });
+        }
+
+        function renderDetalhes(listaFiltrada) {
+            if (listaFiltrada.length === 0) {
+                detalhes.innerHTML = '';
+                mensagem.style.display = 'block';
+                return;
+            }
+
+            const pokemon = listaFiltrada[0];
+            detalhes.innerHTML = `
+        <div class="pokemon-card">
+          <img src="${pokemon.imagem}" alt="${pokemon.nome}">
+          <div>
+            <h2>${pokemon.nome}</h2>
+            <p><strong>Tipo:</strong> ${pokemon.tipo}</p>
+            <p><strong>Geração:</strong> ${pokemon.geracao}</p>
+            <p>${pokemon.descricao}</p>
+          </div>
+        </div>
+      `;
+            mensagem.style.display = 'none';
+        }
+
+        function renderLista(listaFiltrada) {
+            if (listaFiltrada.length === 0) {
+                listaPokemon.innerHTML = '';
+                return;
+            }
+
+            listaPokemon.innerHTML = listaFiltrada.map(pokemon => `
+        <div class="mini-card">
+          <img src="${pokemon.imagem}" alt="${pokemon.nome}">
+          <h3>${pokemon.nome}</h3>
+          <p>${pokemon.tipo}</p>
+        </div>
+      `).join('');
+        }
+
+        function renderizar() {
+            const listaFiltrada = filtrarPokemons();
+            renderDetalhes(listaFiltrada);
+            renderLista(listaFiltrada);
+        }
+
+        btnBuscar.addEventListener('click', renderizar);
+
+        btnLimpar.addEventListener('click', () => {
+            campoNome.value = '';
+            campoTipo.value = '';
+            renderizar();
+        });
+
+        listarTipos();
+        renderizar();
+    </script>
+</body>
+
+</html>
